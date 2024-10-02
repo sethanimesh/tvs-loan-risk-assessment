@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/result_styles.css') }}">
+</head>
+<body>
+    <main>
+        <div class="result-container">
+            <h1>Quiz Results</h1>
+            
+            <div class="result-details">
+                <p>Correct Answers: <span id="correct-answers"></span></p>
+                <p>Wrong Answers: <span id="wrong-answers"></span></p>
+                <p>Grade: <span id="grade-percentage"></span>%</p>
+                <p id="remarks"></p>
+            </div>
+            
+            <div class="action-buttons">
+                <button onclick="retakeQuiz()">Retake Quiz</button>
+                <button onclick="goHome()">Home</button>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Function to get query parameters from URL
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                score: params.get('score'),
+                wrong: params.get('wrong'),
+                grade: params.get('grade')
+            };
+        }
+
+        // Load result details when page loads
+        window.onload = function() {
+            const { score, wrong, grade } = getQueryParams();
+            document.getElementById('correct-answers').innerText = score;
+            document.getElementById('wrong-answers').innerText = wrong;
+            document.getElementById('grade-percentage').innerText = grade;
+
+            // Show remarks based on performance
+            const remarks = document.getElementById('remarks');
+            if (grade >= 70) {
+                remarks.innerText = "Excellent work!";
+            } else if (grade >= 50) {
+                remarks.innerText = "Good effort!";
+            } else {
+                remarks.innerText = "You can do better!";
+            }
+        }
+
+        // Function to retake the quiz
+        function retakeQuiz() {
+            window.location.href = "/";
+        }
+
+        // Function to go to home page
+        function goHome() {
+            window.location.href = "/";
+        }
+    </script>
+</body>
+</html>

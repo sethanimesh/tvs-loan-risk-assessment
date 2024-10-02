@@ -60,5 +60,15 @@ def psychometric():
     # Render the psychometric test page
     return render_template("psychometric.html")
 
+@app.route("/result")
+def result():
+    # Retrieve the score, wrong attempts, and grade from the URL query parameters
+    score = request.args.get('score', 0, type=int)
+    wrong = request.args.get('wrong', 0, type=int)
+    grade = request.args.get('grade', 0, type=float)
+
+    # Render the result.html template and pass these variables to it
+    return render_template("result.html", score=score, wrong=wrong, grade=grade)
+
 if __name__ == "__main__":
     app.run(debug=True)

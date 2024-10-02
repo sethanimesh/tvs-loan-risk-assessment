@@ -71,38 +71,33 @@ const questions = [
     }
 ];
 
+let shuffledQuestions = [];
 
-let shuffledQuestions = []
-
-function handleQuestions() { 
-
+function handleQuestions() {
     while (shuffledQuestions.length <= 9) {
-        const random = questions[Math.floor(Math.random() * questions.length)]
+        const random = questions[Math.floor(Math.random() * questions.length)];
         if (!shuffledQuestions.includes(random)) {
-            shuffledQuestions.push(random)
+            shuffledQuestions.push(random);
         }
     }
 }
 
-
-let questionNumber = 1
-let playerScore = 0  
-let wrongAttempt = 0 
-let indexNumber = 0 
+let questionNumber = 1;
+let playerScore = 0;
+let indexNumber = 0;
 
 function NextQuestion(index) {
-    handleQuestions()
-    const currentQuestion = shuffledQuestions[index]
-    document.getElementById("question-number").innerHTML = questionNumber
+    handleQuestions();
+    const currentQuestion = shuffledQuestions[index];
+    document.getElementById("question-number").innerHTML = questionNumber;
     document.getElementById("display-question").innerHTML = currentQuestion.question;
     document.getElementById("option-one-label").innerHTML = currentQuestion.optionA.text;
     document.getElementById("option-two-label").innerHTML = currentQuestion.optionB.text;
     document.getElementById("option-three-label").innerHTML = currentQuestion.optionC.text;
     document.getElementById("option-four-label").innerHTML = currentQuestion.optionD.text;
-
 }
 
-
+// Check the selected answer and assign score
 function checkForAnswer() {
     const currentQuestion = shuffledQuestions[indexNumber];
     const options = document.getElementsByName("option");
@@ -118,7 +113,7 @@ function checkForAnswer() {
         }
     });
 
-    if (options[0].checked === false && options[1].checked === false && options[2].checked === false && options[3].checked === false) {
+    if (!options[0].checked && !options[1].checked && !options[2].checked && !options[3].checked) {
         document.getElementById('option-modal').style.display = "flex";
     } else {
         playerScore += selectedScore;
@@ -130,24 +125,28 @@ function checkForAnswer() {
 }
 
 function handleNextQuestion() {
-    checkForAnswer() 
-    unCheckRadioButtons()
+    checkForAnswer(); 
+    unCheckRadioButtons(); 
+
     setTimeout(() => {
         if (indexNumber <= 9) {
-            NextQuestion(indexNumber)
+            NextQuestion(indexNumber);
+        } else {
+            const wrongAttempt = 10 - (playerScore / 4); 
+            const gradePercentage = (playerScore / 40) * 100;
+
+            window.location.href = `/result?score=${playerScore}&wrong=${wrongAttempt}&grade=${gradePercentage.toFixed(2)}`;
         }
-        else {
-            handleEndGame()
-        }
-        resetOptionBackground()
+
+        resetOptionBackground();  
     }, 1000);
 }
 
 function resetOptionBackground() {
     const options = document.getElementsByName("option");
     options.forEach((option) => {
-        document.getElementById(option.labels[0].id).style.backgroundColor = ""
-    })
+        document.getElementById(option.labels[0].id).style.backgroundColor = "";
+    });
 }
 
 function unCheckRadioButtons() {
@@ -171,24 +170,25 @@ function handleEndGame() {
         remark = "Excellent financial behavior. You are responsible.";
         remarkColor = "green";
     }
-    const playerGrade = (playerScore / 40) * 100; 
+    const playerGrade = (playerScore / 40) * 100;
 
     document.getElementById('remarks').innerHTML = remark;
     document.getElementById('remarks').style.color = remarkColor;
     document.getElementById('grade-percentage').innerHTML = playerGrade.toFixed(2);
+    document.getElementById('wrong-answers').innerHTML = 10 - (playerScore / 4); // Calculate based on score
+    document.getElementById('right-answers').innerHTML = playerScore / 4;
     document.getElementById('score-modal').style.display = "flex";
 }
 
 function closeScoreModal() {
-    questionNumber = 1
-    playerScore = 0
-    wrongAttempt = 0
-    indexNumber = 0
-    shuffledQuestions = []
-    NextQuestion(indexNumber)
-    document.getElementById('score-modal').style.display = "none"
+    questionNumber = 1;
+    playerScore = 0;
+    indexNumber = 0;
+    shuffledQuestions = [];
+    NextQuestion(indexNumber);
+    document.getElementById('score-modal').style.display = "none";
 }
 
 function closeOptionModal() {
-    document.getElementById('option-modal').style.display = "none"
+    document.getElementById('option-modal').style.display = "none";
 }
