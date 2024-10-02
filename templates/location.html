@@ -9,12 +9,18 @@
 <body>
     <h2>Prediction: {{ prediction }}</h2>
 
+    <!-- Location Information -->
     <div id="location">
         <h3>Your Location:</h3>
         <p id="lat"></p>
         <p id="long"></p>
         <h3>Your City:</h3>
-        <p id="city">Vellore</p> 
+        <p id="city">Vellore</p> <!-- Default city to Vellore -->
+    </div>
+
+    <!-- Button to redirect to psychometric page -->
+    <div class="redirect-button">
+        <button onclick="redirectToPsychometric()">Go to Psychometric Test</button>
     </div>
 
     <script>
@@ -64,6 +70,11 @@
                     alert("An unknown error occurred. Showing default city.");
                     break;
             }
+        }
+
+        // Function to handle redirection to psychometric test page
+        function redirectToPsychometric() {
+            window.location.href = "/psychometric";
         }
     </script>
 </body>

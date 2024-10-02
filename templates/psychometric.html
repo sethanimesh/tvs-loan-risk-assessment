@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Quiz</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/psychometric_styles.css') }}">
 </head>
 <body onload="NextQuestion(0)">
     <main>
@@ -87,6 +87,6 @@
 
         </div>
     </main>
-    <script src="scripts.js"></script>
+    <script src="{{ url_for('static', filename='js/psychometric_scripts.js') }}"></script>
 </body>
 </html>

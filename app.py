@@ -55,5 +55,10 @@ def location():
     # Render the location page and pass the prediction to it
     return render_template("location.html", prediction=prediction)
 
+@app.route("/psychometric")
+def psychometric():
+    # Render the psychometric test page
+    return render_template("psychometric.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
