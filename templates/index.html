@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Assessment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <form method="POST" action="/">
+        <!-- General -->
+        <div class="form-group">
+          <h2 class="heading">Credit Information</h2>
+          
+          <!-- Person Age -->
+          <div class="controls">
+            <input type="number" id="person_age" class="floatLabel" name="person_age" min="18" max="100" step="1" required>
+            <label for="person_age">Age</label>
+          </div>
+          
+          <!-- Person Income -->
+          <div class="controls">
+            <input type="number" id="person_income" class="floatLabel" name="person_income" step="0.01" placeholder="Enter annual income" required>
+            <label for="person_income">Income (₹)</label>
+          </div>
+      
+          <!-- Home Ownership -->
+          <div class="controls">
+            <i class="fa fa-sort"></i>
+            <select id="person_home_ownership" class="floatLabel" name="person_home_ownership" required>
+              <option value=""></option>
+              <option value="own">Own</option>
+              <option value="rent">Rent</option>
+              <option value="mortgage">Mortgage</option>
+            </select>
+            <label for="person_home_ownership">Home Ownership</label>
+          </div>
+          
+          <!-- Loan Amount -->
+          <div class="controls">
+            <input type="number" id="loan_amnt" class="floatLabel" name="loan_amnt" step="0.01" placeholder="Enter loan amount" required>
+            <label for="loan_amnt">Loan Amount (₹)</label>
+          </div>
+      
+          <!-- Loan Interest Rate -->
+          <div class="controls">
+            <input type="number" id="loan_int_rate" class="floatLabel" name="loan_int_rate" step="0.01" placeholder="Enter loan interest rate" required>
+            <label for="loan_int_rate">Loan Interest Rate (%)</label>
+          </div>
+      
+          <!-- Loan Percent Income -->
+          <div class="controls">
+            <input type="number" id="loan_percent_income" class="floatLabel" name="loan_percent_income" step="0.01" placeholder="Loan percent of income" required>
+            <label for="loan_percent_income">Loan Percent of Income (%)</label>
+          </div>
+      
+          <!-- Person Default on File -->
+          <div class="controls">
+            <i class="fa fa-sort"></i>
+            <select id="cb_person_default_on_file" class="floatLabel" name="cb_person_default_on_file" required>
+              <option value=""></option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <label for="cb_person_default_on_file">Default on File</label>
+          </div>
+      
+          <button type="submit" value="Submit" class="col-1-4">Submit</button>
+        </div>
+    </form>
+
+    <!-- Display prediction result -->
+    {% if prediction is not none %}
+        <div class="result">
+            <h3>Prediction: {{ prediction }}</h3>
+        </div>
+    {% endif %}
+
+    <!-- Display user's location and city -->
+    <div id="location">
+        <h3>Your Location:</h3>
+        <p id="lat"></p>
+        <p id="long"></p>
+        <h3>Your City:</h3>
+        <p id="city"></p>
+    </div>
+    
+    <script>
+        // Check if Geolocation is supported
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else { 
+            document.getElementById("location").innerHTML = "Geolocation is not supported by this browser.";
+        }
+
+        function showPosition(position) {
+            // Display latitude and longitude
+            document.getElementById("lat").innerHTML = "Latitude: " + position.coords.latitude;
+            document.getElementById("long").innerHTML = "Longitude: " + position.coords.longitude;
+
+            // Call reverse geocoding API to get the city name
+            getCity(position.coords.latitude, position.coords.longitude);
+        }
+
+        function getCity(lat, long) {
+            // Replace YOUR_API_KEY with your actual Google Maps API key
+            const apiKey = 'YOUR_API_KEY';
+            const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${apiKey}`;
+            
+            // Fetch city using reverse geocoding API
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results.length > 0) {
+                        const addressComponents = data.results[0].address_components;
+                        const city = addressComponents.find(component => component.types.includes("locality")).long_name;
+                        document.getElementById("city").innerHTML = "City: " + city;
+                    } else {
+                        document.getElementById("city").innerHTML = "City: Not found";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching city:', error);
+                    document.getElementById("city").innerHTML = "Error fetching city";
+                });
+        }
+    </script>
+    
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
