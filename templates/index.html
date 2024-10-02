@@ -8,7 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <form method="POST" action="/">
+    <form id="riskForm" method="POST" action="/" onsubmit="return handleFormSubmit(event)">
         <!-- General -->
         <div class="form-group">
           <h2 class="heading">Credit Information</h2>
@@ -70,13 +70,6 @@
         </div>
     </form>
 
-    <!-- Display prediction result -->
-    {% if prediction is not none %}
-        <div class="result">
-            <h3>Prediction: {{ prediction }}</h3>
-        </div>
-    {% endif %}
-
     <!-- Display user's location and city -->
     <div id="location">
         <h3>Your Location:</h3>
@@ -87,38 +80,80 @@
     </div>
     
     <script>
-        // Check if Geolocation is supported
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition);
-        } else { 
-            document.getElementById("location").innerHTML = "Geolocation is not supported by this browser.";
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Prevent the form from submitting immediately
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
         }
 
         function showPosition(position) {
-            // Display latitude and longitude
-            document.getElementById("lat").innerHTML = "Latitude: " + position.coords.latitude;
-            document.getElementById("long").innerHTML = "Longitude: " + position.coords.longitude;
+            const lat = position.coords.latitude;
+            const long = position.coords.longitude;
 
             // Call reverse geocoding API to get the city name
-            getCity(position.coords.latitude, position.coords.longitude);
+            getCity(lat, long).then(city => {
+                // Update the form with latitude, longitude, and city
+                const form = document.getElementById("riskForm");
+
+                // Add hidden inputs for latitude, longitude, and city
+                const latInput = document.createElement("input");
+                latInput.type = "hidden";
+                latInput.name = "latitude";
+                latInput.value = lat;
+                form.appendChild(latInput);
+
+                const longInput = document.createElement("input");
+                longInput.type = "hidden";
+                longInput.name = "longitude";
+                longInput.value = long;
+                form.appendChild(longInput);
+
+                const cityInput = document.createElement("input");
+                cityInput.type = "hidden";
+                cityInput.name = "city";
+                cityInput.value = city;
+                form.appendChild(cityInput);
+
+                // Submit the form after location is obtained
+                form.submit();
+            });
         }
 
         function getCity(lat, long) {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}`;
-    
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const city = data.address.city || data.address.town || data.address.village;
-            document.getElementById("city").innerHTML = "City: " + city;
-        })
-        .catch(error => {
-            console.error('Error fetching city:', error);
-            document.getElementById("city").innerHTML = "Error fetching city";
-        });
-}
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}`;
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const city = data.address.city || data.address.town || data.address.village || 'Unknown';
+                    document.getElementById("city").innerHTML = "City: " + city;
+                    return city;
+                })
+                .catch(error => {
+                    console.error('Error fetching city:', error);
+                    return 'Unknown';
+                });
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
     </script>
-    
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>
