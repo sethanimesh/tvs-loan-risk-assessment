@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Information</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Prediction: {{ prediction }}</h2>
+
+    <!-- Location Information -->
+    <div id="location">
+        <h3>Your Location:</h3>
+        <p id="lat"></p>
+        <p id="long"></p>
+        <h3>Your City:</h3>
+        <p id="city">Vellore</p> <!-- Default city to Vellore -->
+    </div>
+
+    <script>
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+
+        function showPosition(position) {
+            const lat = position.coords.latitude;
+            const long = position.coords.longitude;
+
+            // Display latitude and longitude
+            document.getElementById("lat").innerHTML = "Latitude: " + lat;
+            document.getElementById("long").innerHTML = "Longitude: " + long;
+
+            // Call reverse geocoding API to get the city name
+            getCity(lat, long).then(city => {
+                document.getElementById("city").innerHTML = "City: " + city;
+            });
+        }
+
+        function getCity(lat, long) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}`;
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const city = data.address.city || data.address.town || data.address.village || 'Vellore';
+                    return city;
+                })
+                .catch(() => 'Vellore'); // Default to Vellore in case of error
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation. Showing default city.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable. Showing default city.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out. Showing default city.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred. Showing default city.");
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
