@@ -9,23 +9,19 @@
 </head>
 <body>
     <form id="riskForm" method="POST" action="/" onsubmit="return handleFormSubmit(event)">
-        <!-- General -->
         <div class="form-group">
           <h2 class="heading">Credit Information</h2>
           
-          <!-- Person Age -->
           <div class="controls">
             <input type="number" id="person_age" class="floatLabel" name="person_age" min="18" max="100" step="1" required>
             <label for="person_age">Age</label>
           </div>
           
-          <!-- Person Income -->
           <div class="controls">
             <input type="number" id="person_income" class="floatLabel" name="person_income" step="0.01" placeholder="Enter annual income" required>
             <label for="person_income">Income (₹)</label>
           </div>
       
-          <!-- Home Ownership -->
           <div class="controls">
             <i class="fa fa-sort"></i>
             <select id="person_home_ownership" class="floatLabel" name="person_home_ownership" required>
@@ -37,25 +33,21 @@
             <label for="person_home_ownership">Home Ownership</label>
           </div>
           
-          <!-- Loan Amount -->
           <div class="controls">
             <input type="number" id="loan_amnt" class="floatLabel" name="loan_amnt" step="0.01" placeholder="Enter loan amount" required>
             <label for="loan_amnt">Loan Amount (₹)</label>
           </div>
       
-          <!-- Loan Interest Rate -->
           <div class="controls">
             <input type="number" id="loan_int_rate" class="floatLabel" name="loan_int_rate" step="0.01" placeholder="Enter loan interest rate" required>
             <label for="loan_int_rate">Loan Interest Rate (%)</label>
           </div>
       
-          <!-- Loan Percent Income -->
           <div class="controls">
             <input type="number" id="loan_percent_income" class="floatLabel" name="loan_percent_income" step="0.01" placeholder="Loan percent of income" required>
             <label for="loan_percent_income">Loan Percent of Income (%)</label>
           </div>
       
-          <!-- Person Default on File -->
           <div class="controls">
             <i class="fa fa-sort"></i>
             <select id="cb_person_default_on_file" class="floatLabel" name="cb_person_default_on_file" required>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Predictions</title>
+</head>
+<body>
+    <h2>Predictions Table</h2>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Person Age</th>
+                <th>Person Income</th>
+                <th>Home Ownership</th>
+                <th>Loan Amount</th>
+                <th>Loan Interest Rate</th>
+                <th>Loan Percent Income</th>
+                <th>Default on File</th>
+                <th>Prediction</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>City</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    {% for item in row %}
+                        <td>{{ item }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
