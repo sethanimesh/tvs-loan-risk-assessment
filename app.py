@@ -4,6 +4,8 @@ import joblib
 import sqlite3
 import json
 
+import requests
+
 model = joblib.load('Machine Learning/Demographic/demographic.pkl')
 
 app = Flask(__name__)
@@ -209,6 +211,45 @@ def view_results():
     conn.close()
 
     return render_template("view_results.html", rows=rows)
+
+
+@app.route("/api/generate", methods=["POST"])
+def generate_analysis():
+    try:
+        data = request.get_json()
+        model_name = data.get("model", "llama3.1") 
+        prompt = data.get("prompt", "Hello, How are you?")
+        stream = data.get("stream", False)
+
+        ollama_url = "http://localhost:11434/api/generate"
+        
+        payload = {
+            "model": model_name,
+            "prompt": prompt,
+            "stream": stream
+        }
+        
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(ollama_url, headers=headers, json=payload)
+
+        if stream:
+            def generate():
+                for line in response.iter_lines():
+                    if line:
+                        yield line.decode('utf-8') + "\n"
+            return app.response_class(generate(), mimetype='text/plain')
+
+        response_json = response.json()
+        generated_text = response_json.get("response", "") 
+
+        return generated_text
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     init_db()
