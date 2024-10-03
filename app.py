@@ -10,22 +10,18 @@ app = Flask(__name__)
 
 import pandas as pd
 
-# Load the city risk factor CSV file once
 city_risk_df = pd.read_csv('Machine Learning/Location/city_wise_risk_data.csv')
 
 def get_location_risk_factor(city):
-    # Find the min and max risk factors in the CSV file
     min_risk_factor = city_risk_df['Credit_Risk'].min()
     max_risk_factor = city_risk_df['Credit_Risk'].max()
 
-    # Try to find the city in the CSV, default to 0 if not found
     risk_factor = city_risk_df.loc[city_risk_df['Towns'] == city, 'Credit_Risk']
     if not risk_factor.empty:
         risk_factor_value = float(risk_factor.values[0])
-        # Normalize the risk factor
         normalized_risk_factor = (risk_factor_value - min_risk_factor) / (max_risk_factor - min_risk_factor)
         return normalized_risk_factor
-    return 0  # Default risk factor if city not found
+    return 0  
 
 home_ownership_mapping = {
     "own": 0,
@@ -42,7 +38,6 @@ def init_db():
     conn = sqlite3.connect('predictions.db')
     cursor = conn.cursor()
 
-    # Create predictions table if it doesn't exist
     cursor.execute('''CREATE TABLE IF NOT EXISTS predictions
                       (id INTEGER PRIMARY KEY AUTOINCREMENT,
                        person_age REAL,
@@ -57,7 +52,6 @@ def init_db():
                        longitude REAL,
                        city TEXT)''')
 
-    # Create results table if it doesn't exist
     cursor.execute('''CREATE TABLE IF NOT EXISTS results
                       (id INTEGER PRIMARY KEY AUTOINCREMENT,
                        user_id INTEGER,
@@ -81,6 +75,7 @@ def store_prediction(data):
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
+        # Retrieve form data and convert to appropriate types
         person_age = float(request.form.get("person_age"))
         person_income = float(request.form.get("person_income"))
         person_home_ownership = request.form.get("person_home_ownership")
@@ -89,9 +84,11 @@ def index():
         loan_percent_income = float(request.form.get("loan_percent_income"))
         cb_person_default_on_file = request.form.get("cb_person_default_on_file")
 
+        # Encoding categorical values
         person_home_ownership_encoded = home_ownership_mapping.get(person_home_ownership, -1)
         cb_person_default_on_file_encoded = default_on_file_mapping.get(cb_person_default_on_file, -1)
 
+        # Prepare input data for the model
         input_data = np.array([
             person_age,
             person_income,
@@ -102,9 +99,26 @@ def index():
             cb_person_default_on_file_encoded
         ])
 
-        prediction = model.predict([input_data])[0]
-        data_to_store = (person_age, person_income, person_home_ownership, loan_amnt, loan_int_rate, loan_percent_income, cb_person_default_on_file, prediction, 0, 0, 0)
+        # Get prediction and cast it to a float
+        prediction = float(model.predict([input_data])[0])
+
+        # Prepare data to store, ensuring prediction is a float
+        data_to_store = (
+            person_age,
+            person_income,
+            person_home_ownership,
+            loan_amnt,
+            loan_int_rate,
+            loan_percent_income,
+            cb_person_default_on_file,
+            prediction,  # Ensure prediction is stored as a float
+            0, 0, 0
+        )
+
+        # Store the prediction in the database or file
         store_prediction(data_to_store)
+
+        # Redirect to the location route with the prediction
         return redirect(url_for('location', prediction=prediction))
 
     return render_template("index.html")
@@ -157,7 +171,7 @@ def result():
     location_risk_factor = get_location_risk_factor(city)
 
     # Calculate the final risk score using the given weights
-    final_risk_score = ((0.60 * 1) + (0.20 * location_risk_factor) + (0.20 * normalized_grade))*100
+    final_risk_score = ((0.60 * demographic_prediction) + (0.20 * location_risk_factor) + (0.20 * normalized_grade))*100
 
     # Store results in the database
     cursor.execute('''INSERT INTO results (user_id, score, wrong, grade)
