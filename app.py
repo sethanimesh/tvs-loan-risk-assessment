@@ -4,6 +4,10 @@ import numpy as np
 import joblib
 import sqlite3
 import json
+import base64
+import vertexai
+from vertexai.generative_models import GenerativeModel, Part, SafetySetting
+import markdown
 
 import requests
 
@@ -62,6 +66,12 @@ def init_db():
                        wrong INTEGER,
                        grade REAL,
                        FOREIGN KEY (user_id) REFERENCES predictions (id))''')
+    
+    cursor.execute('''CREATE TABLE IF NOT EXISTS results
+                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       user_id INTEGER,
+                       score INTEGER,
+                       FOREIGN KEY (user_id) REFERENCES predictions (id))''')
 
     conn.commit()
     conn.close()
@@ -78,7 +88,6 @@ def store_prediction(data):
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        # Retrieve form data and convert to appropriate types
         person_age = float(request.form.get("person_age"))
         person_income = float(request.form.get("person_income"))
         person_home_ownership = request.form.get("person_home_ownership")
@@ -87,11 +96,9 @@ def index():
         loan_percent_income = float(request.form.get("loan_percent_income"))
         cb_person_default_on_file = request.form.get("cb_person_default_on_file")
 
-        # Encoding categorical values
         person_home_ownership_encoded = home_ownership_mapping.get(person_home_ownership, -1)
         cb_person_default_on_file_encoded = default_on_file_mapping.get(cb_person_default_on_file, -1)
 
-        # Prepare input data for the model
         input_data = np.array([
             person_age,
             person_income,
@@ -102,10 +109,8 @@ def index():
             cb_person_default_on_file_encoded
         ])
 
-        # Get prediction and cast it to a float
         prediction = float(model.predict([input_data])[0])
 
-        # Prepare data to store, ensuring prediction is a float
         data_to_store = (
             person_age,
             person_income,
@@ -114,22 +119,27 @@ def index():
             loan_int_rate,
             loan_percent_income,
             cb_person_default_on_file,
-            prediction,  # Ensure prediction is stored as a float
+            prediction,  
             0, 0, 0
         )
 
-        # Store the prediction in the database or file
         store_prediction(data_to_store)
 
-        # Redirect to the location route with the prediction
-        return redirect(url_for('location', prediction=prediction))
+        return redirect(url_for('salary_analysis'))
 
     return render_template("index.html")
 
+@app.route("/get_risk_factor", methods=["GET"])
+def get_risk_factor():
+    city = request.args.get('city')
+    if city:
+        risk_factor = get_location_risk_factor(city)
+        return {"city": city, "risk_factor": risk_factor}
+    return {"error": "City not provided"}, 400
+
 @app.route("/location")
 def location():
-    prediction = request.args.get('prediction')
-    return render_template("location.html", prediction=prediction)
+    return render_template("location.html")
 
 @app.route("/store_location", methods=["POST"])
 def store_location():
@@ -165,18 +175,17 @@ def result():
     conn = sqlite3.connect('predictions.db')
     cursor = conn.cursor()
 
-    # Get the most recent user data
     cursor.execute("SELECT id, prediction, city FROM predictions ORDER BY id DESC LIMIT 1")
     user_data = cursor.fetchone()
     user_id, demographic_prediction, city = user_data
 
-    # Retrieve location risk factor (L) from the city_wise_risk_factor.csv file
     location_risk_factor = get_location_risk_factor(city)
 
-    # Calculate the final risk score using the given weights
-    final_risk_score = ((0.60 * demographic_prediction) + (0.20 * location_risk_factor) + (0.20 * normalized_grade))*100
+    final_risk_score = round(
+    ((0.60 * (1-demographic_prediction)) + (0.20 * location_risk_factor) + (0.20 * normalized_grade)) * 100,
+    2
+)
 
-    # Store results in the database
     cursor.execute('''INSERT INTO results (user_id, score, wrong, grade)
                       VALUES (?, ?, ?, ?)''', (user_id, score, wrong, grade))
     
@@ -236,18 +245,20 @@ def generate_analysis():
         (person_age, person_income, person_home_ownership, loan_amnt, loan_int_rate,
          loan_percent_income, cb_person_default_on_file, prediction, city, score, wrong, grade) = row
 
-        prompt_prefix = "You are an expert in financial risk assessment. Based on the following data, provide an analysis of factors that could impact a loan decision, without giving any final decision:\n\n"
+        prompt_prefix = "You are an expert in financial risk assessment. If the prediction is 1, it means the loan was rejected. If the prediction is 0, it means the loan was accepted. Give your own view on why the application should be rejected or accepted. Based on the following data, provide an analysis of factors that could impact a loan decision, without giving any final decision:\n\n"
         prompt = f"""
         Age: {person_age} years
-        Income: ${person_income}
+        Income: ₹{person_income}
         Home Ownership: {person_home_ownership}
-        Loan Amount: ${loan_amnt}
+        Loan Amount: ₹{loan_amnt}
         Interest Rate: {loan_int_rate}%
         Loan Percent of Income: {loan_percent_income}%
         Default on File: {cb_person_default_on_file}
         Prediction: {prediction}
         City: {city}
         Psychometric Score: {score}, Mistakes: {wrong}, Grade: {grade}
+
+        
         """
 
         data = request.get_json()
@@ -276,9 +287,9 @@ def generate_analysis():
             return app.response_class(generate(), mimetype='text/plain')
 
         response_json = response.json()
-        generated_text = response_json.get("response", "")  # Extract the response content
-
-        return jsonify({"response": generated_text})
+        generated_text = response_json.get("response", "")  
+        generated_text=markdown.markdown(generated_text)
+        return {"response": generated_text}
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -311,6 +322,84 @@ def show_analysis():
 
     except Exception as e:
         return f"Error: {str(e)}", 500
+
+def generate(user_document_base64):
+    vertexai.init(project="chrome-diorama-437513-c0", location="us-central1")
+    model = GenerativeModel(
+        "gemini-1.5-flash-002",
+    )
+    
+    # Decode the user-provided document (base64 format)
+    document1 = Part.from_data(
+        mime_type="application/pdf",
+        data=base64.b64decode(user_document_base64),
+    )
+
+    # Example text input from user
+    text1 = """Analyze the customer\'s income and expense data over the last 6 months to assess their financial risk for loan approval. Provide the output in the 
+    Risk Score: <Risk Score>
+    Analysis: <Analysis> (In points in each line)
+
+The "risk_score" should be a value between 1 and 10, where 1 indicates low risk and 10 indicates high risk. The "analysis" should be a concise explanation of why this score was assigned based on the provided financial data."""
+    safety_settings = [
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    ]
+
+    generation_config = {
+    "max_output_tokens": 8192,
+    "temperature": 1,
+    "top_p": 0.95,
+}
+
+    responses = model.generate_content(
+        [text1, document1],
+        generation_config=generation_config,
+        safety_settings=safety_settings,
+        stream=True,
+    )
+
+    generated_text = ""
+    for response in responses:
+        generated_text += response.text
+    return generated_text
+
+@app.route('/salary_analysis')
+def salary_analysis():
+    return render_template('salary.html')
+
+@app.route('/generate-risk-score', methods=['POST'])
+def generate_risk_score():
+    if 'pdf_file' not in request.files:
+        return render_template('salary.html', error="No file part")
+    
+    pdf_file = request.files['pdf_file']
+    
+    if pdf_file.filename == '':
+        return render_template('salary.html', error="No selected file")
+    
+    pdf_data = pdf_file.read()
+    
+    pdf_base64 = base64.b64encode(pdf_data).decode('utf-8')
+    
+    result = generate(pdf_base64)
+    print(result)
+    
+    return render_template('salary.html', result=result)
 
 
 if __name__ == "__main__":

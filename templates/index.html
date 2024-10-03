@@ -10,8 +10,13 @@
 <body>
     <form id="riskForm" method="POST" action="/" onsubmit="return handleFormSubmit(event)">
         <div class="form-group">
-          <h2 class="heading">Credit Information</h2>
+          <h2 class="heading">Demographic Information</h2>
           
+          <div class="controls">
+            <input type="text" id="person_name" class="floatLabel" name="person_name" placeholder="Enter your name" required>
+            <label for="person_name">Name</label>
+        </div>
+
           <div class="controls">
             <input type="number" id="person_age" class="floatLabel" name="person_age" min="18" max="100" step="1" required>
             <label for="person_age">Age</label>
@@ -42,9 +47,14 @@
             <input type="number" id="loan_int_rate" class="floatLabel" name="loan_int_rate" step="0.01" placeholder="Enter loan interest rate" required>
             <label for="loan_int_rate">Loan Interest Rate (%)</label>
           </div>
+
+          <div class="controls">
+            <input type="number" id="loan_term" class="floatLabel" name="loan_term" step="1" placeholder="Enter loan duration (in years)" required>
+            <label for="loan_term">Loan Term (Years)</label>
+          </div>
       
           <div class="controls">
-            <input type="number" id="loan_percent_income" class="floatLabel" name="loan_percent_income" step="0.01" placeholder="Loan percent of income" required>
+            <input type="number" id="loan_percent_income" class="floatLabel" name="loan_percent_income" step="0.01" placeholder="Loan percent of income" readonly required>
             <label for="loan_percent_income">Loan Percent of Income (%)</label>
           </div>
       
@@ -61,6 +71,27 @@
           <button type="submit" value="Submit" class="col-1-4">Submit</button>
         </div>
     </form>
+
+    <script>
+        function calculateLoanPercentIncome() {
+            const loanAmount = parseFloat(document.getElementById('loan_amnt').value) || 0;
+            const loanInterestRate = parseFloat(document.getElementById('loan_int_rate').value) || 0;
+            const income = parseFloat(document.getElementById('person_income').value) || 0;
+            const loanTerm = parseFloat(document.getElementById('loan_term').value) || 0;
+
+            if (income > 0 && loanTerm > 0) {
+                const loanPercentIncome = (loanAmount / income);
+                document.getElementById('loan_percent_income').value = loanPercentIncome.toFixed(2);
+            } else {
+                document.getElementById('loan_percent_income').value = '';
+            }
+        }
+
+        document.getElementById('loan_amnt').addEventListener('input', calculateLoanPercentIncome);
+        document.getElementById('loan_int_rate').addEventListener('input', calculateLoanPercentIncome);
+        document.getElementById('person_income').addEventListener('input', calculateLoanPercentIncome);
+        document.getElementById('loan_term').addEventListener('input', calculateLoanPercentIncome);
+    </script>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>
