@@ -5,21 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Location Information</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Lato', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            text-align: center;
+        }
+
+        header {
+            padding: 2em;
+            background-color: #1b3d4d;
+            color: #fff;
+        }
+
+        h2 {
+            font-size: 24px;
+        }
+
+        #location {
+            padding: 1em 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            text-align: left;
+            margin: 20px auto;
+            border-radius: 8px;
+        }
+
+        #location h3, #location p {
+            margin: 10px 0;
+        }
+
+        #city {
+            font-weight: bold;
+        }
+
+        .redirect-button {
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #1b3d4d;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2b4d64;
+        }
+
+        .info-text {
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Prediction: {{ prediction }}</h2>
+    <header>
+        <h2>Prediction: {{ prediction }}</h2>
+    </header>
 
     <div id="location">
         <h3>Your Location:</h3>
-        <p id="lat"></p>
-        <p id="long"></p>
-        <h3>Your City:</h3>
-        <p id="city">Vellore</p> <!-- Default city to Vellore -->
+        <p id="lat">Fetching latitude...</p>
+        <p id="long">Fetching longitude...</p>
+        <p id="city"></p>
     </div>
 
-    <!-- Button to redirect to psychometric page -->
     <div class="redirect-button">
         <button onclick="redirectToPsychometric()">Go to Psychometric Test</button>
+    </div>
+
+    <div class="info-text">
+        <p>Note: We need your location to provide personalized information.</p>
     </div>
 
     <script>
