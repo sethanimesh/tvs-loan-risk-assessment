@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_cors import CORS
 import numpy as np
 import joblib
 import sqlite3
@@ -9,7 +10,7 @@ import requests
 model = joblib.load('Machine Learning/Demographic/demographic.pkl')
 
 app = Flask(__name__)
-
+CORS(app)
 import pandas as pd
 
 city_risk_df = pd.read_csv('Machine Learning/Location/city_wise_risk_data.csv')
@@ -212,20 +213,52 @@ def view_results():
 
     return render_template("view_results.html", rows=rows)
 
-
 @app.route("/api/generate", methods=["POST"])
 def generate_analysis():
     try:
+        conn = sqlite3.connect('predictions.db')
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT p.person_age, p.person_income, p.person_home_ownership, p.loan_amnt, 
+                   p.loan_int_rate, p.loan_percent_income, p.cb_person_default_on_file, 
+                   p.prediction, p.city, r.score, r.wrong, r.grade
+            FROM predictions p
+            LEFT JOIN results r ON p.id = r.user_id
+            ORDER BY p.id DESC LIMIT 1
+        ''')
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return jsonify({"error": "No prediction data found."}), 404
+
+        (person_age, person_income, person_home_ownership, loan_amnt, loan_int_rate,
+         loan_percent_income, cb_person_default_on_file, prediction, city, score, wrong, grade) = row
+
+        prompt_prefix = "You are an expert in financial risk assessment. Based on the following data, provide an analysis of factors that could impact a loan decision, without giving any final decision:\n\n"
+        prompt = f"""
+        Age: {person_age} years
+        Income: ${person_income}
+        Home Ownership: {person_home_ownership}
+        Loan Amount: ${loan_amnt}
+        Interest Rate: {loan_int_rate}%
+        Loan Percent of Income: {loan_percent_income}%
+        Default on File: {cb_person_default_on_file}
+        Prediction: {prediction}
+        City: {city}
+        Psychometric Score: {score}, Mistakes: {wrong}, Grade: {grade}
+        """
+
         data = request.get_json()
-        model_name = data.get("model", "llama3.1") 
-        prompt = data.get("prompt", "Hello, How are you?")
+        model_name = data.get("model", "llama3.1")  # Default to llama3.1 if not specified
         stream = data.get("stream", False)
 
         ollama_url = "http://localhost:11434/api/generate"
         
         payload = {
             "model": model_name,
-            "prompt": prompt,
+            "prompt": prompt_prefix + prompt.strip(),  # Add the prompt prefix
             "stream": stream
         }
         
@@ -243,12 +276,41 @@ def generate_analysis():
             return app.response_class(generate(), mimetype='text/plain')
 
         response_json = response.json()
-        generated_text = response_json.get("response", "") 
+        generated_text = response_json.get("response", "")  # Extract the response content
 
-        return generated_text
+        return jsonify({"response": generated_text})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/show_analysis")
+def show_analysis():
+    try:
+        generate_url = 'http://127.0.0.1:5000/api/generate' 
+        payload = {
+            'model': 'llama3.1',  # Default model
+            'stream': False
+        }
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        # Send POST request to the /api/generate route
+        response = requests.post(generate_url, json=payload, headers=headers)
+
+        # If the response was successful
+        if response.status_code == 200:
+            response_data = response.json()
+            analysis = response_data.get('response', 'No analysis provided')
+        else:
+            analysis = f"Error: Unable to fetch analysis, Status Code: {response.status_code}"
+
+        # Render the analysis page and pass the analysis result to the template
+        return render_template('analysis.html', analysis=analysis)
+
+    except Exception as e:
+        return f"Error: {str(e)}", 500
 
 
 if __name__ == "__main__":
