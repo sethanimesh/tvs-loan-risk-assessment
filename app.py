@@ -8,6 +8,25 @@ model = joblib.load('Machine Learning/Demographic/demographic.pkl')
 
 app = Flask(__name__)
 
+import pandas as pd
+
+# Load the city risk factor CSV file once
+city_risk_df = pd.read_csv('Machine Learning/Location/city_wise_risk_data.csv')
+
+def get_location_risk_factor(city):
+    # Find the min and max risk factors in the CSV file
+    min_risk_factor = city_risk_df['Credit_Risk'].min()
+    max_risk_factor = city_risk_df['Credit_Risk'].max()
+
+    # Try to find the city in the CSV, default to 0 if not found
+    risk_factor = city_risk_df.loc[city_risk_df['Towns'] == city, 'Credit_Risk']
+    if not risk_factor.empty:
+        risk_factor_value = float(risk_factor.values[0])
+        # Normalize the risk factor
+        normalized_risk_factor = (risk_factor_value - min_risk_factor) / (max_risk_factor - min_risk_factor)
+        return normalized_risk_factor
+    return 0  # Default risk factor if city not found
+
 home_ownership_mapping = {
     "own": 0,
     "rent": 1,
@@ -122,20 +141,32 @@ def result():
     wrong = request.args.get('wrong', 0, type=int)
     grade = request.args.get('grade', 0, type=float)
 
-    # Get the latest user ID (from the most recent prediction)
+    min_grade = 0
+    max_grade = 100
+    normalized_grade = (grade - min_grade) / (max_grade - min_grade)
+
     conn = sqlite3.connect('predictions.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT MAX(id) FROM predictions")
-    user_id = cursor.fetchone()[0]
 
-    # Store the result in the results table
+    # Get the most recent user data
+    cursor.execute("SELECT id, prediction, city FROM predictions ORDER BY id DESC LIMIT 1")
+    user_data = cursor.fetchone()
+    user_id, demographic_prediction, city = user_data
+
+    # Retrieve location risk factor (L) from the city_wise_risk_factor.csv file
+    location_risk_factor = get_location_risk_factor(city)
+
+    # Calculate the final risk score using the given weights
+    final_risk_score = (0.60 * 1) + (0.20 * location_risk_factor) + (0.20 * normalized_grade)
+
+    # Store results in the database
     cursor.execute('''INSERT INTO results (user_id, score, wrong, grade)
                       VALUES (?, ?, ?, ?)''', (user_id, score, wrong, grade))
     
     conn.commit()
     conn.close()
 
-    return render_template("result.html", score=score, wrong=wrong, grade=grade)
+    return render_template("result.html", score=score, wrong=wrong, grade=grade, final_risk_score=final_risk_score)
 
 @app.route("/view_predictions")
 def view_predictions():
@@ -151,11 +182,9 @@ def view_predictions():
 
 @app.route("/view_results")
 def view_results():
-    # Connect to the SQLite database
     conn = sqlite3.connect('predictions.db')
     cursor = conn.cursor()
 
-    # Select all rows from the results table, joining with predictions
     cursor.execute('''SELECT predictions.id, predictions.person_age, predictions.person_income, predictions.person_home_ownership, predictions.loan_amnt, predictions.loan_int_rate, 
                              predictions.loan_percent_income, predictions.cb_person_default_on_file, predictions.prediction, predictions.city,
                              results.score, results.wrong, results.grade
@@ -163,13 +192,10 @@ def view_results():
                       JOIN results ON predictions.id = results.user_id''')
     rows = cursor.fetchall()
 
-    # Close the connection
     conn.close()
 
-    # Render the results in a template
     return render_template("view_results.html", rows=rows)
 
 if __name__ == "__main__":
-    # Initialize the database before running the app
     init_db()
     app.run(debug=True)

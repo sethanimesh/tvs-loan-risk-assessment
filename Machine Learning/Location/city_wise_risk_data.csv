@@ -1,108 +1,108 @@
 S.No.,Towns,Credit_Risk
-1,Agra,High Risk
-2,Ahmadabad,High Risk
-3,Ajmer,High Risk
-4,Allahabad,High Risk
-5,Almora,Low Risk
-6,Ambala,Low Risk
-7,Amritsar,Low Risk
-8,Asansol,High Risk
-9,Aurangabad,High Risk
-10,Bahraich,Low Risk
-11,Bangalore,High Risk
-12,Baruani,Low Risk
-13,Bareilly,High Risk
-14,Belgaum,High Risk
-15,Bhatinda,High Risk
-16,Bhilai,High Risk
-17,Bhopal,High Risk
-18,Bhubaneswar,High Risk
-19,Bhuj,Low Risk
-20,Bijapur,High Risk
-21,Bikaner,High Risk
-22,Bokaro,High Risk
-23,Bulandshahar,Low Risk
-24,Burdwan,High Risk
-25,Calicut,High Risk
-26,Chandigarh,Low Risk
-27,Chennai,High Risk
-28,Chitradurga,High Risk
-29,Coimbtore,High Risk
-30,Cuddalore,High Risk
-31,Cuttuck,High Risk
-32,Darbhanga,Low Risk
-33,Darjeeling,Low Risk
-34,Dharwad,High Risk
-35,Dehradun,Low Risk
-36,Dharampuri,High Risk
-37,Delhi,Low Risk
-38,Durgapur,High Risk
-39,Gangtok,Low Risk
-40,Guwahati,Low Risk
-41,Goa,High Risk
-42,Gulbarga,High Risk
-43,Gaya,High Risk
-44,Gorakhpur,Low Risk
-45,Hyderabad,High Risk
-46,Imphal,Low Risk
-47,Jabalpur,High Risk
-48,Jaipur,High Risk
-49,Jamshedpur,High Risk
-50,Jhansi,High Risk
-51,Jodhpur,High Risk
-52,Jorhat,Low Risk
-53,Kakrapara,High Risk
-54,Kalapakkam,High Risk
-55,Kanchipuram,High Risk
-56,Kanpur,High Risk
-57,Karwar,High Risk
-58,Kohima,Low Risk
-59,Kolkata,High Risk
-60,Kota,High Risk
-61,Kurnool,High Risk
-62,Lucknow,High Risk
-63,Ludhiana,Low Risk
-64,Madurai,High Risk
-65,Mandi,Low Risk
-66,Mangalore,High Risk
-67,Monghyr,Low Risk
-68,Moradabad,Low Risk
-69,Mumbai,High Risk
-70,Mysore,High Risk
-71,Nagpur,High Risk
-72,Nagarjunasagar,High Risk
-73,Nainital,Low Risk
-74,Nasik,High Risk
-75,Nellore,High Risk
-76,Osmanabad,High Risk
-77,Panjim,High Risk
-78,Patiala,High Risk
-79,Patna,Low Risk
-80,Pilibhit,Low Risk
-81,Pondicherry,High Risk
-82,Pune,High Risk
-83,Raipur,High Risk
-84,Rajkot,High Risk
-85,Ranchi,High Risk
-86,Roorkee,Low Risk
-87,Rourkela,High Risk
-88,Sadiya,Low Risk
-89,Salem,High Risk
-90,Simla,Low Risk
-91,Sironj,High Risk
-92,Solapur,High Risk
-93,Srinagar,Low Risk
-94,Surat,High Risk
-95,Tarapur,High Risk
-96,Tezpur,Low Risk
-97,Thane,High Risk
-98,Thanjavur,High Risk
-99,Thiruvananthapuram,High Risk
-100,Tiruchirappali,High Risk
-101,Trivennamalai,High Risk
-102,Udaipur,High Risk
-103,Vadodara,High Risk
-104,Varanasi,High Risk
-105,Vellore,High Risk
-106,Vijaywada,High Risk
-107,Vishakhapatnam,High Risk
+1,Agra,0.16
+2,Ahmadabad,0.16
+3,Ajmer,0.1
+4,Allahabad,0.1
+5,Almora,0.24
+6,Ambala,0.24
+7,Amritsar,0.24
+8,Asansol,0.16
+9,Aurangabad,0.1
+10,Bahraich,0.24
+11,Bangalore,0.1
+12,Baruani,0.24
+13,Bareilly,0.16
+14,Belgaum,0.16
+15,Bhatinda,0.16
+16,Bhilai,0.1
+17,Bhopal,0.1
+18,Bhubaneswar,0.16
+19,Bhuj,0.36
+20,Bijapur,0.16
+21,Bikaner,0.16
+22,Bokaro,0.16
+23,Bulandshahar,0.24
+24,Burdwan,0.16
+25,Calicut,0.16
+26,Chandigarh,0.24
+27,Chennai,0.16
+28,Chitradurga,0.1
+29,Coimbtore,0.16
+30,Cuddalore,0.16
+31,Cuttuck,0.16
+32,Darbhanga,0.36
+33,Darjeeling,0.24
+34,Dharwad,0.16
+35,Dehradun,0.24
+36,Dharampuri,0.16
+37,Delhi,0.24
+38,Durgapur,0.16
+39,Gangtok,0.24
+40,Guwahati,0.36
+41,Goa,0.16
+42,Gulbarga,0.1
+43,Gaya,0.16
+44,Gorakhpur,0.24
+45,Hyderabad,0.1
+46,Imphal,0.36
+47,Jabalpur,0.16
+48,Jaipur,0.1
+49,Jamshedpur,0.1
+50,Jhansi,0.1
+51,Jodhpur,0.1
+52,Jorhat,0.36
+53,Kakrapara,0.16
+54,Kalapakkam,0.16
+55,Kanchipuram,0.16
+56,Kanpur,0.16
+57,Karwar,0.16
+58,Kohima,0.36
+59,Kolkata,0.16
+60,Kota,0.1
+61,Kurnool,0.1
+62,Lucknow,0.16
+63,Ludhiana,0.24
+64,Madurai,0.1
+65,Mandi,0.36
+66,Mangalore,0.16
+67,Monghyr,0.24
+68,Moradabad,0.24
+69,Mumbai,0.16
+70,Mysore,0.1
+71,Nagpur,0.1
+72,Nagarjunasagar,0.1
+73,Nainital,0.24
+74,Nasik,0.16
+75,Nellore,0.16
+76,Osmanabad,0.16
+77,Panjim,0.16
+78,Patiala,0.16
+79,Patna,0.24
+80,Pilibhit,0.24
+81,Pondicherry,0.1
+82,Pune,0.16
+83,Raipur,0.1
+84,Rajkot,0.16
+85,Ranchi,0.1
+86,Roorkee,0.24
+87,Rourkela,0.1
+88,Sadiya,0.36
+89,Salem,0.16
+90,Simla,0.24
+91,Sironj,0.1
+92,Solapur,0.16
+93,Srinagar,0.36
+94,Surat,0.16
+95,Tarapur,0.16
+96,Tezpur,0.36
+97,Thane,0.16
+98,Thanjavur,0.1
+99,Thiruvananthapuram,0.16
+100,Tiruchirappali,0.1
+101,Trivennamalai,0.16
+102,Udaipur,0.1
+103,Vadodara,0.16
+104,Varanasi,0.16
+105,Vellore,0.16
+106,Vijaywada,0.16
+107,Vishakhapatnam,0.1
