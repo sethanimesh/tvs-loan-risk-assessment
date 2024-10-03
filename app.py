@@ -157,7 +157,7 @@ def result():
     location_risk_factor = get_location_risk_factor(city)
 
     # Calculate the final risk score using the given weights
-    final_risk_score = (0.60 * 1) + (0.20 * location_risk_factor) + (0.20 * normalized_grade)
+    final_risk_score = ((0.60 * 1) + (0.20 * location_risk_factor) + (0.20 * normalized_grade))*100
 
     # Store results in the database
     cursor.execute('''INSERT INTO results (user_id, score, wrong, grade)

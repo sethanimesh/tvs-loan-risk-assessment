@@ -1,0 +1,70 @@
+/* Ensure the main container uses Flexbox to center content */
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: white;
+}
+
+/* Style the result-container */
+.result-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 2rem;
+    border: 2px solid #ccc; /* Optional: Add a border for better visibility */
+    border-radius: 10px;    /* Optional: Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+}
+
+/* Style for the Final Risk Score */
+.result-details p {
+    font-size: 2rem;          /* Increase font size for prominence */
+    font-weight: bold;        /* Make the text bold */
+    text-align: center;       /* Center the text */
+    margin: 1rem 0;           /* Add some spacing */
+    color: #333;              /* Darker text color for readability */
+}
+
+/* Style the Final Risk Score value */
+#final-risk-score {
+    color: #007BFF;           /* Optional: Change color to highlight */
+}
+
+/* Style the action buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;                /* Space between buttons */
+    margin-top: 2rem;         /* Space above buttons */
+}
+
+.action-buttons button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    background-color: black;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.action-buttons button:hover {
+    background-color: rgb(143, 93, 93);
+}
+
+/* Responsive Design (Optional) */
+@media (max-width: 600px) {
+    .result-details p {
+        font-size: 1.5rem;
+    }
+
+    .action-buttons button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
