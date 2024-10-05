@@ -5,72 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Location Information</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Lato', sans-serif;
-            background-color: #f4f6f9;
-            color: #333;
-            text-align: center;
-        }
-
-        header {
-            padding: 2em;
-            background-color: #1b3d4d;
-            color: #fff;
-        }
-
-        h2 {
-            font-size: 24px;
-        }
-
-        #location {
-            padding: 1em 20px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            text-align: left;
-            margin: 20px auto;
-            border-radius: 8px;
-        }
-
-        #location h3, #location p {
-            margin: 10px 0;
-        }
-
-        #city {
-            font-weight: bold;
-        }
-
-        .redirect-button {
-            margin-top: 20px;
-        }
-
-        button {
-            background-color: #1b3d4d;
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #2b4d64;
-        }
-
-        .info-text {
-            color: #888;
-            font-size: 14px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/location_styles.css') }}">
+    
 </head>
 <body>
     <header>
@@ -91,76 +27,6 @@
     <div class="info-text">
         <p>Note: We need your location to provide personalized information.</p>
     </div>
-
-    <script>
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition, showError);
-        } else {
-            alert("Geolocation is not supported by this browser.");
-        }
-    
-        function showPosition(position) {
-            const lat = position.coords.latitude;
-            const long = position.coords.longitude;
-    
-            // Display latitude and longitude
-            document.getElementById("lat").innerHTML = "Latitude: " + lat;
-            document.getElementById("long").innerHTML = "Longitude: " + long;
-    
-            // Call reverse geocoding API to get the city name
-            getCity(lat, long).then(city => {
-                document.getElementById("city").innerHTML = "City: " + city;
-                // Send location data to the server to store it
-                storeLocation(lat, long, city);
-            });
-        }
-    
-        function getCity(lat, long) {
-            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${long}`;
-            return fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const city = data.address.city || data.address.town || data.address.village || 'Vellore';
-                    return city;
-                })
-                .catch(() => 'Vellore'); // Default to Vellore in case of error
-        }
-    
-        function showError(error) {
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    alert("User denied the request for Geolocation. Showing default city.");
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    alert("Location information is unavailable. Showing default city.");
-                    break;
-                case error.TIMEOUT:
-                    alert("The request to get user location timed out. Showing default city.");
-                    break;
-                case error.UNKNOWN_ERROR:
-                    alert("An unknown error occurred. Showing default city.");
-                    break;
-            }
-        }
-    
-        function storeLocation(lat, long, city) {
-            $.ajax({
-                type: "POST",
-                url: "/store_location", 
-                data: JSON.stringify({ latitude: lat, longitude: long, city: city }),
-                contentType: "application/json",
-                success: function(response) {
-                    console.log("Location stored successfully");
-                },
-                error: function(err) {
-                    console.error("Error storing location", err);
-                }
-            });
-        }
-    
-        function redirectToPsychometric() {
-            window.location.href = "/psychometric";
-        }
-    </script>
+    <script src="{{ url_for('static', filename='js/location_scripts.js') }}"></script>
 </body>
 </html>

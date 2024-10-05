@@ -16,7 +16,6 @@
             </div>
             
             <div class="action-buttons">
-                <button onclick="retakeQuiz()">Retake Quiz</button>
                 <button onclick="goHome()">Home</button>
                 <button onclick="goToAnalysis()">Result Analysis</button> 
             </div>
@@ -24,16 +23,10 @@
     </main>
     
     <script>
-        function retakeQuiz() {
-            window.location.href = "/";
-        }
-
         function goHome() {
             window.location.href = "/";
         }
-
         function goToAnalysis() {
-            // Simply redirect the user to the analysis page
             window.location.href = "/show_analysis";
         }
     </script>

@@ -71,7 +71,7 @@ main {
     width: 100%;
     display: block;
     margin: 0.5rem 0;
-    padding: 0; /* Remove padding from span */
+    padding: 0; 
     cursor: pointer;
 }
 
@@ -89,24 +89,20 @@ main {
     transition: background-color 0.3s, border-color 0.3s;
 }
 
-/* Highlight the label when the radio button is checked */
 input[type="radio"]:checked + label {
     background-color: lightgray;
     border-color: lightgray;
 }
 
-/* Apply hover effect to the label */
 .game-options-container span:hover label {
     transform: scale(1.02);
     background-color: lightgray;
 }
 
-/* Hidden radio button */
 input[type="radio"] {
     display: none;
 }
 
-/* Next button styling */
 .next-button-container {
     width: 100%;
     display: flex;
@@ -130,7 +126,6 @@ input[type="radio"] {
     background-color: rgb(143, 93, 93);
 }
 
-/* Modal container for results */
 .modal-container {
     display: none;
     position: fixed;
@@ -146,7 +141,6 @@ input[type="radio"] {
     animation: fadeIn 1.2s ease-in-out;
 }
 
-/* Modal content styling */
 .modal-content-container {
     width: 25rem;
     background-color: rgb(43, 42, 42);
@@ -199,7 +193,6 @@ input[type="radio"] {
     background-color: rgb(83, 82, 82);
 }
 
-/* Media queries for responsiveness */
 @media(min-width: 300px) and (max-width: 350px) {
     .game-quiz-container {
         width: 90%;
